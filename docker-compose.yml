@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  awsddns:
+    container_name: awsddns
+    image: "errorbe/awsddns"
+    user: spring
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/koen/awsddns:/home/spring/config:Z
+      - /home/koen/awsddns/logs:/home/spring/logs:Z
+    healthcheck:
+      test: curl --fail -s http://localhost:8080/actuator/health || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
