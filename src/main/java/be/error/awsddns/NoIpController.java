@@ -16,6 +16,8 @@
 
 package be.error.awsddns;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,28 +27,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping("/ddns")
 public class NoIpController {
 
-    private static Logger LOG = LoggerFactory.getLogger(NoIpController.class);
+	private static Logger LOG = LoggerFactory.getLogger(NoIpController.class);
 
-    @Autowired
-    private Route53Manager route53Manager;
+	@Autowired
+	private Route53Manager route53Manager;
 
-    public NoIpController(Route53Manager route53Manager) {
-        this.route53Manager = route53Manager;
-    }
+	public NoIpController(Route53Manager route53Manager) {
+		this.route53Manager = route53Manager;
+	}
 
-    @GetMapping("/update")
-    public void update(@RequestParam String hostname, @RequestParam(required = false) String ipAddress, HttpServletRequest httpServletRequest) {
-        String ip = ipAddress;
-        if (StringUtils.isBlank(ipAddress)) {
-            ip = httpServletRequest.getLocalAddr();
-        }
-        LOG.debug("Receiving request from ip " + httpServletRequest.getLocalAddr() + " for hostname " + hostname + " for (optional) explicit ip " + ipAddress + ". Updating ip address to " + ip);
-        route53Manager.updateIpFromClient(hostname, ip);
-    }
+	@GetMapping(value = "/update", produces = "text/plain")
+	public String update(@RequestParam String hostname, @RequestParam(required = false) String ipAddress, HttpServletRequest httpServletRequest) {
+		String ip = ipAddress;
+		if (StringUtils.isBlank(ipAddress)) {
+			ip = httpServletRequest.getLocalAddr();
+		}
+		LOG.debug("Receiving request from ip " + httpServletRequest.getLocalAddr() + " for hostname " + hostname + " for (optional) explicit ip " + ipAddress
+				+ ". Updating ip address to " + ip);
+		route53Manager.updateIpFromClient(hostname, ip);
+		return "good";
+	}
 }
